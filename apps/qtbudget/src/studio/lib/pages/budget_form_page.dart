@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../models/budget.dart';
 import '../models/account_code.dart';
 import '../models/transaction.dart';
 import '../services/storage_service.dart';
+import 'account_codes_page.dart';
 
 class BudgetFormPage extends StatefulWidget {
   final Budget? budget;
@@ -59,11 +59,10 @@ class _BudgetFormPageState extends State<BudgetFormPage> {
     super.dispose();
   }
 
-  List<AccountCode> get _expenseCodes =>
-      widget.codes.where((c) => c.type == AccountType.expense).toList();
+  List<AccountCode> get _allCodes => _storage.loadAccountCodes();
 
-  List<AccountCode> get _incomeCodes =>
-      widget.codes.where((c) => c.type == AccountType.income).toList();
+  List<AccountCode> get _expenseCodes =>
+      _allCodes.where((c) => c.type == AccountType.expense).toList();
 
   void _save() {
     final budgets = _storage.loadBudgets();
@@ -118,7 +117,7 @@ class _BudgetFormPageState extends State<BudgetFormPage> {
       (i) => i.accountCodeId == _txnCodeId,
       orElse: () => BudgetItem(
         accountCodeId: _txnCodeId,
-        accountName: widget.codes.firstWhere((c) => c.id == _txnCodeId).name,
+        accountName: _allCodes.firstWhere((c) => c.id == _txnCodeId).name,
       ),
     );
     if (!_items.contains(item)) _items.add(item);
@@ -171,7 +170,7 @@ class _BudgetFormPageState extends State<BudgetFormPage> {
               children: [
                 Expanded(
                   child: DropdownButtonFormField<int>(
-                    value: _year,
+                    initialValue: _year,
                     decoration: const InputDecoration(labelText: '年份'),
                     items: List.generate(5, (i) => DateTime.now().year - 1 + i)
                         .map(
@@ -184,7 +183,7 @@ class _BudgetFormPageState extends State<BudgetFormPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: DropdownButtonFormField<int?>(
-                    value: _month,
+                    initialValue: _month,
                     decoration: const InputDecoration(labelText: '月份（空=年度）'),
                     items: [
                       const DropdownMenuItem(value: null, child: Text('年度预算')),
@@ -264,20 +263,44 @@ class _BudgetFormPageState extends State<BudgetFormPage> {
       context: context,
       builder: (ctx) => SimpleDialog(
         title: const Text('选择科目'),
-        children: _expenseCodes.map((code) {
-          return SimpleDialogOption(
-            onPressed: () {
-              if (!_items.any((i) => i.accountCodeId == code.id)) {
-                _items.add(
-                  BudgetItem(accountCodeId: code.id, accountName: code.name),
-                );
-              }
+        children: [
+          if (_expenseCodes.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Text('暂无支出科目，请先添加'),
+            )
+          else
+            ..._expenseCodes.map((code) => SimpleDialogOption(
+              onPressed: () {
+                if (!_items.any((i) => i.accountCodeId == code.id)) {
+                  _items.add(
+                    BudgetItem(accountCodeId: code.id, accountName: code.name),
+                  );
+                }
+                Navigator.pop(ctx);
+                setState(() {});
+              },
+              child: Text('${code.code} ${code.name}'),
+            )),
+          const Divider(),
+          SimpleDialogOption(
+            onPressed: () async {
               Navigator.pop(ctx);
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AccountCodesPage()),
+              );
               setState(() {});
             },
-            child: Text('${code.code} ${code.name}'),
-          );
-        }).toList(),
+            child: Row(
+              children: [
+                const Icon(Icons.settings_outlined, size: 18),
+                const SizedBox(width: 8),
+                const Text('管理科目'),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -295,9 +318,9 @@ class _BudgetFormPageState extends State<BudgetFormPage> {
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              value: _txnCodeId,
+              initialValue: _txnCodeId,
               decoration: const InputDecoration(labelText: '科目', isDense: true),
-              items: widget.codes
+              items: _allCodes
                   .map(
                     (c) => DropdownMenuItem(value: c.id, child: Text(c.name)),
                   )
@@ -378,7 +401,7 @@ class _BudgetFormPageState extends State<BudgetFormPage> {
             ),
             const Divider(),
             ...txns.reversed.take(50).map((t) {
-              final code = widget.codes
+              final code = _allCodes
                   .where((c) => c.id == t.accountCodeId)
                   .firstOrNull;
               return ListTile(

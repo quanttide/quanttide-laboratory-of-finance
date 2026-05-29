@@ -1,5 +1,3 @@
-import 'account_code.dart';
-
 /// 预算
 class Budget {
   final String id;

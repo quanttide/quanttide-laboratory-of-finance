@@ -1,5 +1,3 @@
-import 'account_code.dart';
-
 /// 收支记录
 class Transaction {
   final String id;

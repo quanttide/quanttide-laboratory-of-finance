@@ -3,6 +3,7 @@ import '../models/budget.dart';
 import '../models/account_code.dart';
 import '../models/transaction.dart';
 import '../services/storage_service.dart';
+import 'account_codes_page.dart';
 import 'budget_form_page.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -47,7 +48,19 @@ class _DashboardPageState extends State<DashboardPage> {
         title: const Text('量潮预算管家'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.account_balance_outlined),
+            tooltip: '科目管理',
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AccountCodesPage()),
+              );
+              _load();
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.add),
+            tooltip: '新建预算',
             onPressed: () => _openBudgetForm(),
           ),
         ],
