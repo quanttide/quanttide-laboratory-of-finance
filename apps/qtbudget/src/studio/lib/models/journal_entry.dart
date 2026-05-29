@@ -1,7 +1,7 @@
 /// 日记账中的一笔流水。
 ///
 /// inflow / outflow 不会同时 > 0，但模型不做限制。balance 由 Journal 层汇总计算。
-class Entry {
+class JournalEntry {
   final String id;
   final String journalId;
   String description;
@@ -9,7 +9,7 @@ class Entry {
   double outflow;
   DateTime date;
 
-  Entry({
+  JournalEntry({
     required this.id,
     required this.journalId,
     required this.description,
@@ -29,7 +29,7 @@ class Entry {
     'date': date.toIso8601String(),
   };
 
-  factory Entry.fromJson(Map<String, dynamic> json) => Entry(
+  factory JournalEntry.fromJson(Map<String, dynamic> json) => JournalEntry(
     id: json['id'] as String,
     journalId: json['journalId'] as String,
     description: json['description'] as String? ?? '',

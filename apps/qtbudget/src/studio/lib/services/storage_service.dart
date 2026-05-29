@@ -1,6 +1,6 @@
 import 'dart:convert';
 import '../models/journal.dart';
-import '../models/entry.dart';
+import '../models/journal_entry.dart';
 import 'storage_backend.dart';
 
 class StorageService {
@@ -27,16 +27,16 @@ class StorageService {
     );
   }
 
-  List<Entry> loadEntries() {
+  List<JournalEntry> loadEntries() {
     final raw = _backend.getItem(_entriesKey);
     if (raw == null) return [];
     final list = jsonDecode(raw) as List;
     return list
-        .map((e) => Entry.fromJson(e as Map<String, dynamic>))
+        .map((e) => JournalEntry.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 
-  void saveEntries(List<Entry> entries) {
+  void saveEntries(List<JournalEntry> entries) {
     _backend.setItem(
       _entriesKey,
       jsonEncode(entries.map((e) => e.toJson()).toList()),

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../models/journal.dart';
-import '../models/entry.dart';
+import '../models/journal_entry.dart';
 import '../services/storage_service.dart';
 
 class JournalPage extends StatefulWidget {
   final Journal? journal;
-  final List<Entry> entries;
+  final List<JournalEntry> entries;
 
   const JournalPage({
     super.key,
@@ -87,7 +87,7 @@ class _JournalPageState extends State<JournalPage> {
     final journal = widget.journal;
     if (journal == null) return;
 
-    final entry = Entry(
+    final entry = JournalEntry(
       id: DateTime.now().microsecondsSinceEpoch.toString(),
       journalId: journal.id,
       description: _descCtrl.text,

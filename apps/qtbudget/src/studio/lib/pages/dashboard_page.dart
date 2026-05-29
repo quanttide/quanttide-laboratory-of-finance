@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/journal.dart';
-import '../models/entry.dart';
+import '../models/journal_entry.dart';
 import '../services/storage_service.dart';
 import 'journal_page.dart';
 
@@ -14,7 +14,7 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   final _storage = StorageService();
   List<Journal> _journals = [];
-  List<Entry> _entries = [];
+  List<JournalEntry> _entries = [];
 
   @override
   void initState() {

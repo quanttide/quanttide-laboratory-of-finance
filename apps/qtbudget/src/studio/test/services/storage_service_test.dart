@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qtbudget/models/journal.dart';
-import 'package:qtbudget/models/entry.dart';
+import 'package:qtbudget/models/journal_entry.dart';
 import 'package:qtbudget/services/storage_service.dart';
 import '../shared/fake_storage.dart';
 
@@ -34,7 +34,7 @@ void main() {
 
     test('save and load round-trip', () {
       service.saveEntries([
-        Entry(id: 'e1', journalId: 'j1', description: '买书', inflow: 0, outflow: 200, date: DateTime(2026, 5, 29)),
+        JournalEntry(id: 'e1', journalId: 'j1', description: '买书', inflow: 0, outflow: 200, date: DateTime(2026, 5, 29)),
       ]);
       expect(service.loadEntries().first.outflow, 200);
     });
