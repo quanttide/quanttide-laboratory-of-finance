@@ -1,31 +1,31 @@
 /// 日记账中的一笔流水。
 ///
-/// income / expense 不同时 > 0，模型不做限制。balance 由 Journal 层汇总计算。
+/// debit = 借（资金流入），credit = 贷（资金流出）。不同时 > 0。
 class JournalEntry {
   final String id;
   final String journalId;
   String description;
-  double income;
-  double expense;
+  double debit;
+  double credit;
   DateTime date;
 
   JournalEntry({
     required this.id,
     required this.journalId,
     required this.description,
-    this.income = 0,
-    this.expense = 0,
+    this.debit = 0,
+    this.credit = 0,
     required this.date,
-  }) : assert(income >= 0 && expense >= 0);
+  }) : assert(debit >= 0 && credit >= 0);
 
-  double get amount => income - expense;
+  double get amount => debit - credit;
 
   Map<String, dynamic> toJson() => {
     'id': id,
     'journalId': journalId,
     'description': description,
-    'income': income,
-    'expense': expense,
+    'debit': debit,
+    'credit': credit,
     'date': date.toIso8601String(),
   };
 
@@ -33,8 +33,8 @@ class JournalEntry {
     id: json['id'] as String,
     journalId: json['journalId'] as String,
     description: json['description'] as String? ?? '',
-    income: (json['income'] as num?)?.toDouble() ?? 0,
-    expense: (json['expense'] as num?)?.toDouble() ?? 0,
+    debit: (json['debit'] as num?)?.toDouble() ?? 0,
+    credit: (json['credit'] as num?)?.toDouble() ?? 0,
     date: DateTime.parse(json['date'] as String),
   );
 }

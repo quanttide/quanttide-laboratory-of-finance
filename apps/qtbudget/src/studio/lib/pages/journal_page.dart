@@ -25,8 +25,8 @@ class _JournalPageState extends State<JournalPage> {
   late final _editing = widget.journal != null;
 
   final _descCtrl = TextEditingController();
-  final _incomeCtrl = TextEditingController();
-  final _expenseCtrl = TextEditingController();
+  final _debitCtrl = TextEditingController();
+  final _creditCtrl = TextEditingController();
 
   @override
   void initState() {
@@ -43,13 +43,13 @@ class _JournalPageState extends State<JournalPage> {
     _nameCtrl.dispose();
     _balanceCtrl.dispose();
     _descCtrl.dispose();
-    _incomeCtrl.dispose();
-    _expenseCtrl.dispose();
+    _debitCtrl.dispose();
+    _creditCtrl.dispose();
     super.dispose();
   }
 
   double _balance() {
-    final total = widget.entries.fold(0.0, (s, e) => s + e.income - e.expense);
+    final total = widget.entries.fold(0.0, (s, e) => s + e.debit - e.credit);
     return (widget.journal?.startingBalance ?? 0) + total;
   }
 
@@ -80,9 +80,9 @@ class _JournalPageState extends State<JournalPage> {
   }
 
   void _addEntry() {
-    final income = double.tryParse(_incomeCtrl.text) ?? 0;
-    final expense = double.tryParse(_expenseCtrl.text) ?? 0;
-    if (income <= 0 && expense <= 0) return;
+    final debit = double.tryParse(_debitCtrl.text) ?? 0;
+    final credit = double.tryParse(_creditCtrl.text) ?? 0;
+    if (debit <= 0 && credit <= 0) return;
 
     final journal = widget.journal;
     if (journal == null) return;
@@ -91,8 +91,8 @@ class _JournalPageState extends State<JournalPage> {
       id: DateTime.now().microsecondsSinceEpoch.toString(),
       journalId: journal.id,
       description: _descCtrl.text,
-      income: income,
-      expense: expense,
+      debit: debit,
+      credit: credit,
       date: DateTime.now(),
     );
 
@@ -100,8 +100,8 @@ class _JournalPageState extends State<JournalPage> {
     _storage.saveEntries(all);
 
     _descCtrl.clear();
-    _incomeCtrl.clear();
-    _expenseCtrl.clear();
+    _debitCtrl.clear();
+    _creditCtrl.clear();
     setState(() {});
   }
 
@@ -178,24 +178,24 @@ class _JournalPageState extends State<JournalPage> {
               children: [
                 Expanded(
                   child: TextField(
-                    controller: _incomeCtrl,
+                    controller: _debitCtrl,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
-                      labelText: '收入',
+                      labelText: '借方',
                       isDense: true,
-                      prefixText: '+¥ ',
+                      prefixText: '¥ ',
                     ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: TextField(
-                    controller: _expenseCtrl,
+                    controller: _creditCtrl,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
-                      labelText: '支出',
+                      labelText: '贷方',
                       isDense: true,
-                      prefixText: '-¥ ',
+                      prefixText: '¥ ',
                     ),
                   ),
                 ),
@@ -270,16 +270,16 @@ class _JournalPageState extends State<JournalPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      if (e.income > 0)
+                      if (e.debit > 0)
                         Text(
-                          '+¥${_fmt(e.income)}',
+                          '+¥${_fmt(e.debit)}',
                           style: const TextStyle(
                             color: Colors.green, fontWeight: FontWeight.bold,
                           ),
                         ),
-                      if (e.expense > 0)
+                      if (e.credit > 0)
                         Text(
-                          '-¥${_fmt(e.expense)}',
+                          '-¥${_fmt(e.credit)}',
                           style: const TextStyle(
                             color: Colors.red, fontWeight: FontWeight.bold,
                           ),
